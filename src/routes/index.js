@@ -1,8 +1,8 @@
-const Router = require("router");
-const bookRouter = require("./book");
+const Router = require('router');
+const bookRouter = require('./book');
 const router = new Router();
 const routes = () => {
-  router.use("/books", bookRouter);
+  router.use('/api/books', bookRouter);
   return router;
 };
 
