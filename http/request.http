@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:5000/api/books/656f44f4cee3dd4e554e9bba
+GET http://localhost:5000/api/books/656f5550af1d4e5691ddef3b
 
 
 ###
@@ -26,8 +26,20 @@ Content-Type: application/json
 }
 
 ###
-DELETE  http://localhost:5000/api/books/656f5550af1d4e5691ddef3b
+DELETE  http://localhost:5000/api/books/657092ffd4dd77870386b87f
 
 
 ###
-PATCH   http://localhost:5000/api/books/restore/656f5550af1d4e5691ddef3b
+PATCH   http://localhost:5000/api/books/restore/657092ffd4dd77870386b87f
+
+
+###
+PUT  http://localhost:5000/api/books/657092ffd4dd77870386b87f
+Content-Type: application/json
+
+
+{
+    "name": "Truyen Kieu U",
+    "author": "Nguyen Du",
+    "type": "Poetry stories"
+}

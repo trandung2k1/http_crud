@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { softDeletePlugin } = require('soft-delete-plugin-mongoose');
+const mongoose_delete = require('mongoose-delete');
 const bookSchema = new Schema(
   {
     name: {
@@ -19,6 +19,6 @@ const bookSchema = new Schema(
     timestamps: true,
   },
 );
-bookSchema.plugin(softDeletePlugin);
+bookSchema.plugin(mongoose_delete, { overrideMethods: 'all' });
 const Book = model('Book', bookSchema);
 module.exports = Book;

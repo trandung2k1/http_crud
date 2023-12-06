@@ -50,7 +50,7 @@ router.get('/:id', async function (req, res) {
     );
   }
   try {
-    const findBook = await Book.findById(id);
+    const findBook = await Book.findOne({ _id: id });
     if (!findBook) {
       res.statusCode = 404;
       return res.end(
@@ -73,9 +73,47 @@ router.get('/:id', async function (req, res) {
   }
 });
 
-router.put('/:id', function (req, res) {
+router.put('/:id', async function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
   const id = req.params.id;
-  res.end(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.statusCode = 400;
+    return res.end(
+      JSON.stringify({
+        status: 400,
+        message: 'Id invalid',
+      }),
+    );
+  }
+  try {
+    const findBook = await Book.findOne({ _id: id });
+    if (!findBook) {
+      res.statusCode = 404;
+      return res.end(
+        JSON.stringify({
+          status: 404,
+          message: 'Book  not found',
+        }),
+      );
+    }
+    const doc = await Book.findOneAndUpdate(
+      { _id: id },
+      { ...req.body },
+      {
+        new: true,
+      },
+    );
+    res.statusCode = 200;
+    res.end(JSON.stringify({ ...doc?._doc }));
+  } catch (error) {
+    res.statusCode = 500;
+    return res.end(
+      JSON.stringify({
+        message: error.message,
+        status: 500,
+      }),
+    );
+  }
 });
 
 router.delete('/:id', async function (req, res) {
@@ -91,7 +129,7 @@ router.delete('/:id', async function (req, res) {
     );
   }
   try {
-    const findBook = await Book.findById(id);
+    const findBook = await Book.findOne({ _id: id });
     if (!findBook) {
       res.statusCode = 404;
       return res.end(
@@ -101,17 +139,8 @@ router.delete('/:id', async function (req, res) {
         }),
       );
     }
-    if (findBook.isDeleted) {
-      res.statusCode = 404;
-      return res.end(
-        JSON.stringify({
-          status: 404,
-          message: 'Book not found',
-        }),
-      );
-    }
-    const deleted = await Book.softDelete({ _id: id });
-    if (!deleted.deleted) {
+    const deleted = await Book.delete({ _id: id });
+    if (!deleted.matchedCount) {
       res.statusCode = 400;
       return res.end(
         JSON.stringify({
@@ -149,9 +178,8 @@ router.patch('/restore/:id', async function (req, res) {
     );
   }
   try {
-    const booksDeleted = await Book.findDeleted({ _id: id });
-    const bookDeleted = booksDeleted?.find((i) => i._id.toString() === id);
-    if (!bookDeleted) {
+    const bookDeleted = await Book.findOneDeleted({ _id: id });
+    if (!bookDeleted || !bookDeleted.deleted) {
       res.statusCode = 404;
       return res.end(
         JSON.stringify({
@@ -161,7 +189,7 @@ router.patch('/restore/:id', async function (req, res) {
       );
     }
     const restored = await Book.restore({ _id: id });
-    if (!restored.restored) {
+    if (!restored.matchedCount) {
       res.statusCode = 400;
       return res.end(
         JSON.stringify({
